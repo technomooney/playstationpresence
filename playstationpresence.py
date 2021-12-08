@@ -4,6 +4,10 @@ from pypresence import Presence
 import configparser
 import time
 import ast
+import logging
+import systemd_watchdog
+import os
+
 
 def discordrpc(appid):
     global rpc
@@ -11,15 +15,29 @@ def discordrpc(appid):
     rpc = Presence(appid, pipe=0)
     rpc.connect()
 
+def setupLogging():
+    if currentOS == "NT":
+        logfile = os.path.commonpath(config["system"]["NTLogFile"])
+    else:
+        logfile = os.path.commonpath(config["system"]["POSTXLogFile"])
+    loglevelint = getattr(logging, config["system"]["LogLevel"].upper(), "DEBUG")
+    print(loglevelint)
+    logging.basicConfig(filename=logfile, level=loglevelint)
+
+
+currentOS = os.name
+
+
 config = configparser.ConfigParser()
 config.read('playstationpresence.ini')
 npsso = config['main']['npsso']
 PSNID = config['main']['PSNID']
 gameart = config['main']['gameArt']
 
-PS4OnPS5 = config['appids']['PS4OnPS5']
-PS5 = config['appids']['PS5']
-PS4 = config['appids']['PS4']
+PS4OnPS5 = config['tokens']['PS4OnPS5']
+PS5 = config['tokens']['PS5']
+PS4 = config['tokens']['PS4']
+
 
 psnawp = psnawp.PSNAWP(npsso)
 start_time = int(time.time())
@@ -27,13 +45,16 @@ oldpresence = ""
 #Initial usage, used to clear status if user is offline
 rpc = Presence(PS4,pipe=0)
 rpc.connect()
+setupLogging()
 
 while True:
     user_online_id = psnawp.user(online_id=PSNID)
     mainpresence = str(user_online_id.get_presence())
-    #print(mainpresence) #Uncomment this to get info about games inc. artwork/gameid links
+    logging.info()
+    print(mainpresence) #Uncomment this to get info about games inc. artwork/gameid links
     start_time = int(time.time())
     if 'offline' in mainpresence:
+        logging.info("User is offline, clearing status")
         print("User is offline, clearing status")
         rpc.clear()
     else: 
@@ -66,6 +87,9 @@ while True:
                 gamename = current[27]
                 #gamestatus = current[]
                 rpc.update(state=gamename, start=start_time, small_image=system, small_text=PSNID, large_image=gameid.lower(), large_text=gametext)
-                print("Playing %s" %gamename)
+                logging.info(f"Playing {gamename}")
+                print(f"Playing {gamename}")
     time.sleep(15) #Adjust this to be higher if you get ratelimited
+
     oldpresence = mainpresence
+
