@@ -5,8 +5,8 @@ import configparser
 import time
 import ast
 import logging
-import systemd_watchdog
 import os
+import datetime
 
 
 def discordrpc(appid):
@@ -17,10 +17,10 @@ def discordrpc(appid):
 
 def setupLogging():
     if currentOS == "NT":
-        logfile = os.path.commonpath(config["system"]["NTLogFile"])
+        logfile = config["system"]["NTLogFile"]
     else:
-        logfile = os.path.commonpath(config["system"]["POSTXLogFile"])
-    loglevelint = getattr(logging, config["system"]["LogLevel"].upper(), "DEBUG")
+        logfile = config["system"]["POSTXLogFile"]
+    loglevelint = getattr(logging, config["system"]["LogLevel"].upper(), "INFO")
     print(loglevelint)
     logging.basicConfig(filename=logfile, level=loglevelint)
 
@@ -46,11 +46,11 @@ oldpresence = ""
 rpc = Presence(PS4,pipe=0)
 rpc.connect()
 setupLogging()
-
+logging.info(f'Starting up at {datetime.datetime.now()}')
 while True:
     user_online_id = psnawp.user(online_id=PSNID)
-    mainpresence = str(user_online_id.get_presence())
-    logging.info()
+    print(type(user_online_id.get_presence()))
+    mainpresence = user_online_id.get_presence()
     print(mainpresence) #Uncomment this to get info about games inc. artwork/gameid links
     start_time = int(time.time())
     if 'offline' in mainpresence:
@@ -71,9 +71,11 @@ while True:
             else:
                 system = "ps4"
                 discordrpc(PS4)
-            current = mainpresence.split("'")
+            current = str(mainpresence).split("'")
+            print(current)
             if (len(current) == 19): #Length of this is 19 if user is not in a game
                 rpc.update(state="Idling", start=start_time, small_image=system, small_text=PSNID, large_image=system, large_text="Homescreen")
+                logging.info(f'Idleing')
                 print("Idling")
             else:
                 if 'gameStatus' in mainpresence: #Not every game supports gameStatus
@@ -81,15 +83,19 @@ while True:
                 else:
                     gametext = current[27]
                 if gameart == "yes":
-                    gameid = current[23]
+                    if 'conceptIconUrl' in mainpresence['gameTitleInfoList'][0]:
+                        gameid = mainpresence['gameTitleInfoList'][0]["conceptIconUrl"]
+                    elif "npTitleIconUrl" in mainpresence['gameTitleInfoList'][0]:
+                        gameid = mainpresence['gameTitleInfoList'][0]["npTitleIconUrl"]
+                        print()
                 else:
                     gameid = system
                 gamename = current[27]
                 #gamestatus = current[]
-                rpc.update(state=gamename, start=start_time, small_image=system, small_text=PSNID, large_image=gameid.lower(), large_text=gametext)
+                rpc.update(state=gamename, start=start_time, small_image=system, small_text=PSNID, large_image=gameid, large_text=gametext)
                 logging.info(f"Playing {gamename}")
                 print(f"Playing {gamename}")
-    time.sleep(15) #Adjust this to be higher if you get ratelimited
+    time.sleep(20) #Adjust this to be higher if you get ratelimited
 
     oldpresence = mainpresence
 
