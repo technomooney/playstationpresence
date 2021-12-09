@@ -93,11 +93,12 @@ try:
                         gameid = system
                     gamename = mainpresence['gameTitleInfoList'][0]['titleName']
                     #gamestatus = current[]
-                    rpc.update(state=gamename, start=start_time, small_image=system, small_text=PSNID, large_image=gameid, large_text=gametext)
+                    rpc.update(state=gamename, start=start_timee, small_image=system, small_text=PSNID, large_image=gameid, large_text=gametext)
                     logging.info(f"Playing {gamename}")
                     print(f"Playing {gamename}")
         time.sleep(20) #Adjust this to be higher if you get ratelimited
 
         oldpresence = mainpresence
+
 except Exception as err:
-    logging.ethere was an error... the error is as followsxception(f"Unhandled Exception...")
+    logging.exception("there was an unhandled exception")
