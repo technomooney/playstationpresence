@@ -3,11 +3,14 @@ from psnawp_api import psnawp
 from pypresence import Presence
 import configparser
 import time
+import sys
+import getopt
 import ast
 import logging
 import os
 import datetime
 
+# print(os.getcwd())
 
 def discordrpc(appid):
     global rpc
@@ -15,8 +18,8 @@ def discordrpc(appid):
     rpc = Presence(appid, pipe=0)
     rpc.connect()
 
-def setupLogging():
-    if currentOS == "NT":
+def setuplogging():
+    if currentOS == "nt":
         logfile = config["system"]["NTLogFile"]
     else:
         logfile = config["system"]["POSTXLogFile"]
@@ -24,8 +27,17 @@ def setupLogging():
     logging.basicConfig(filename=logfile, level=loglevelint)
 try:
     currentOS = os.name
+    opts, argsList = getopt.getopt(sys.argv[1:], "c::", ["config="]) # todo add more user friendly commandline help and such
+
     config = configparser.ConfigParser()
-    config.read('playstationpresence.ini')
+    if not opts:
+        logging.info("No args were given, using default")
+        config.read('playstationpresence.ini')
+    else:
+        logging.info("arg was given... attempting to use the arg")
+        for opt,arg in opts:
+            if opt == "-c":
+                config.read(arg)
     npsso = config['main']['npsso']
     PSNID = config['main']['PSNID']
     gameart = config['main']['gameArt']
@@ -40,9 +52,9 @@ try:
     start_time = int(time.time())
     oldpresence = {}
     #Initial usage, used to clear status if user is offline
-    rpc = Presence(PS4,pipe=0)
+    rpc = Presence(PS4, pipe=0)
     rpc.connect()
-    setupLogging()
+    setuplogging()
     logging.info(f'Starting up at {datetime.datetime.now()}')
     while True:
         user_online_id = psnawp.user(online_id=PSNID)
@@ -93,7 +105,7 @@ try:
                         gameid = system
                     gamename = mainpresence['gameTitleInfoList'][0]['titleName']
                     #gamestatus = current[]
-                    rpc.update(state=gamename, start=start_timee, small_image=system, small_text=PSNID, large_image=gameid, large_text=gametext)
+                    rpc.update(state=gamename, start=start_time, small_image=system, small_text=PSNID, large_image=gameid, large_text=gametext)
                     logging.info(f"Playing {gamename}")
                     print(f"Playing {gamename}")
         time.sleep(20) #Adjust this to be higher if you get ratelimited
@@ -102,3 +114,4 @@ try:
 
 except Exception as err:
     logging.exception("there was an unhandled exception")
+    quit(1)
