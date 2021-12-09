@@ -1,0 +1,4 @@
+PS5 title on PS5 launch platform
+{'availability': 'availableToPlay', 'primaryPlatformInfo': {'onlineStatus': 'online', 'platform': 'PS5', 'lastOnlineDate': '2021-12-08T07:35:01.820Z'}, 'gameTitleInfoList': [{'npTitleId': 'PPSA01748_00', 'titleName': "Marvel's Guardians of the Galaxy", 'format': 'PS5', 'launchPlatform': 'PS5', 'conceptIconUrl': 'https://image.api.playstation.com/vulcan/ap/rnd/202106/0215/Pw9cWnyqkix3EoCOGqrN1cgN.png'}]}
+PS4 title on PS5 launch platform
+{'availability': 'availableToPlay', 'primaryPlatformInfo': {'onlineStatus': 'online', 'platform': 'PS5', 'lastOnlineDate': '2021-12-08T07:35:01.820Z'}, 'gameTitleInfoList': [{'npTitleId': 'CUSA06093_00', 'titleName': 'Hatsune Miku: Project DIVA Future Tone', 'format': 'ps4', 'launchPlatform': 'PS5', 'npTitleIconUrl': 'http://gs2-sec.ww.prod.dl.playstation.net/gs2-sec/appkgo/prod/CUSA06093_00/3/i_0db3e86ed4d2d2d146d7910c9765bf8b01e677203257a0491a87b82929e15be6/i/icon0.png'}]}
